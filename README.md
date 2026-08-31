@@ -18,7 +18,7 @@
 ---
 
 > [!WARNING]
-> **Network Notice:** This decentralized application and its smart contracts are currently deployed on the **Midnight Preprod (Preview) Network**. All tokens used are test tokens with no real-world value.
+> **Network Notice:** This decentralized application and its smart contracts are currently deployed on the **Midnight PREVIEW Network**. All tokens used are test tokens with no real-world value.
 
 ---
 
@@ -50,7 +50,7 @@
 ## 🔗 Links
 
 - **Live Deployed App**: [https://zkauction-midnight.vercel.app/](https://zkauction-midnight.vercel.app/)
-- **Deployed Preprod Contract**: `6eec85da7d92d58adf85637be652f1921e7233947ce76e9dda0d80e75bb83e65` ([View on Explorer](https://explorer.1am.xyz/contract/6eec85da7d92d58adf85637be652f1921e7233947ce76e9dda0d80e75bb83e65))
+- **Deployed Preview Contract**: `6eec85da7d92d58adf85637be652f1921e7233947ce76e9dda0d80e75bb83e65` ([View on Explorer](https://explorer.1am.xyz/contract/6eec85da7d92d58adf85637be652f1921e7233947ce76e9dda0d80e75bb83e65))
 - **Demo Video**: [https://youtu.be/6QF17lxBqp4](https://youtu.be/6QF17lxBqp4)
 - **X (Twitter)**: [@zkauctionweb3](https://x.com/zkauctionweb3)
 
