@@ -4,23 +4,54 @@
   # ZKAuction
   ### Private Reserve Auctions on the Midnight Network
   
-  [![Frontend CI](https://github.com/shivam-s-dev/zkauction/actions/workflows/frontend.yml/badge.svg)](https://github.com/shivam-s-dev/zkauction/actions/workflows/frontend.yml)
-  [![Smart Contracts CI](https://github.com/shivam-s-dev/zkauction/actions/workflows/contracts.yml/badge.svg)](https://github.com/shivam-s-dev/zkauction/actions/workflows/contracts.yml)
+  [![Lint CI](https://github.com/shivam-s-dev/zkauction/actions/workflows/lint.yml/badge.svg)](https://github.com/shivam-s-dev/zkauction/actions/workflows/lint.yml)
+  [![Build CI](https://github.com/shivam-s-dev/zkauction/actions/workflows/build.yml/badge.svg)](https://github.com/shivam-s-dev/zkauction/actions/workflows/build.yml)
+  [![Tests CI](https://github.com/shivam-s-dev/zkauction/actions/workflows/tests.yml/badge.svg)](https://github.com/shivam-s-dev/zkauction/actions/workflows/tests.yml)
   
   ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)
   ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
   ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
   ![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
-  ![Midnight](https://img.shields.io/badge/Midnight_Preprod-8b5cf6?style=for-the-badge)
+  ![Midnight](https://img.shields.io/badge/Midnight_Preview-8b5cf6?style=for-the-badge)
 </div>
+
+---
+
+> [!WARNING]
+> **Network Notice:** This decentralized application and its smart contracts are currently deployed on the **Midnight Preprod (Preview) Network**. All tokens used are test tokens with no real-world value.
+
+---
+
+## 📚 Documentation
+
+| Document | Description |
+| --- | --- |
+| [📖 SETUP.md](SETUP.md) | Full environment setup: wallet, faucet, env vars, local dev server |
+| [📘 USAGE.md](USAGE.md) | How to create auctions, place bids, settle, and understand the privacy model |
+| [README.md](#) | Project overview, architecture, smart contracts, and CI/CD |
+
+### Contents
+
+- [🔗 Links](#-links)
+- [💡 About the Product Idea](#-about-the-product-idea)
+- [🔒 Privacy Model](#-privacy-model-what-an-observer-can-and-cannot-learn)
+- [📸 Screenshots](#-screenshots)
+- [📜 Smart Contracts Description](#-smart-contracts-description)
+- [🏗 Project Architecture](#-project-architecture)
+- [🔄 User Workflow](#-user-workflow)
+- [📁 File Structure](#-file-structure)
+- [✅ Test Cases](#-test-cases)
+- [🛠 Getting Started](#-getting-started-for-first-time-users)
+- [🚀 Future Implementation & Real World Applications](#-future-implementation--real-world-applications)
+- [🙏 Acknowledgements](#-acknowledgements)
 
 ---
 
 ## 🔗 Links
 
 - **Live Deployed App**: [https://zkauction-midnight.vercel.app/](https://zkauction-midnight.vercel.app/)
-- **Deployed Preprod Contract**: `b41e9f3039d8783040b27a6da5353a72c42f863b1878bad594af6e1fc76e5352` ([View on Explorer](https://explorer.1am.xyz/contract/b41e9f3039d8783040b27a6da5353a72c42f863b1878bad594af6e1fc76e5352))
-- **Demo Video**: [https://youtu.be/SgigJdq82VI](https://youtu.be/SgigJdq82VI)
+- **Deployed Preprod Contract**: `6eec85da7d92d58adf85637be652f1921e7233947ce76e9dda0d80e75bb83e65` ([View on Explorer](https://explorer.1am.xyz/contract/6eec85da7d92d58adf85637be652f1921e7233947ce76e9dda0d80e75bb83e65))
+- **Demo Video**: [https://youtu.be/6QF17lxBqp4](https://youtu.be/6QF17lxBqp4)
 - **X (Twitter)**: [@zkauctionweb3](https://x.com/zkauctionweb3)
 
 ---
@@ -93,13 +124,15 @@ The ZKAuction smart contract is written in **Compact** (Midnight's specialized Z
 
 ### Deployed Contracts & Transactions
 
+> [!NOTE]
+> All transactions and contracts below are on the **Midnight PREVIEW Network**. You can verify them on the [1AM Explorer](https://explorer.1am.xyz).
+
 | Action / Type | Address / Hash | Explorer Link |
 | --- | --- | --- |
-| **Smart Contract Deployment** | `2806e44f...acff` | [View Transaction](https://explorer.1am.xyz/tx/2806e44f123c3a1066b644bad3d8f04930f69bc2107aec000e68c1fac645acff?network=preview) |
-| **Create Auction** | `dd318ad7...15d0` | [View Transaction](https://explorer.1am.xyz/tx/dd318ad7ddfe8e4fb1cff7cce05ce25ed093a4f585c163b9aca4e3013cd415d0?network=preview) |
-| **Place Bid** | `2806e44f...acff` | [View Transaction](https://explorer.1am.xyz/tx/2806e44f123c3a1066b644bad3d8f04930f69bc2107aec000e68c1fac645acff?network=preview) |
-| **Contract (Create Auction)** | `b41e9f30...5352` | [View Contract](https://explorer.1am.xyz/contract/b41e9f3039d8783040b27a6da5353a72c42f863b1878bad594af6e1fc76e5352) |
-| **Contract (Place Bid)** | `13312f0e...adfd` | [View Contract](https://explorer.1am.xyz/contract/13312f0e0b22b143f445c31b9c272f8c43c75b0c549168b1d4dbb26790feadfd) |
+| **Smart Contract Deployment** | `bd6dce38476aecb68b5a10673f94ec8da207c8d8d0f0af97f35adcc87dfbbbda` | [View Transaction](https://explorer.1am.xyz/tx/bd6dce38476aecb68b5a10673f94ec8da207c8d8d0f0af97f35adcc87dfbbbda?network=preview) |
+| **Create Auction** | `662c2bbe902898ffdbc442ae716547a525560c4f88adb77b646088e108380d71` | [View Transaction](https://explorer.1am.xyz/tx/662c2bbe902898ffdbc442ae716547a525560c4f88adb77b646088e108380d71?network=preview) |
+| **Settle** | `50beadc97505b4f83f6b8b8d0eda1885a373a50bf949152eb76bf662349d4b01` | [View Transaction](https://explorer.1am.xyz/tx/50beadc97505b4f83f6b8b8d0eda1885a373a50bf949152eb76bf662349d4b01?network=preview) |
+| **Deployed Contract** | `6eec85da7d92d58adf85637be652f1921e7233947ce76e9dda0d80e75bb83e65` | [View Contract](https://explorer.1am.xyz/contract/6eec85da7d92d58adf85637be652f1921e7233947ce76e9dda0d80e75bb83e65) |
 
 ### Contract Code & Deployment Images
 
@@ -109,7 +142,7 @@ The ZKAuction smart contract is written in **Compact** (Midnight's specialized Z
 
 #### 1. Smart Contract Deployment (Blockchain Explorer)
 ![Contract Deployment](assets/SMART%20CONTRACTS/smart-contract-deployment.png)
-*Verification of the core ZKAuction smart contract successfully deployed to the Midnight Preprod Network.*
+*Verification of the core ZKAuction smart contract successfully deployed to the Midnight Preview Network.*
 
 #### 2. Create Auction Transaction
 ![Create Auction Tx](assets/SMART%20CONTRACTS/create-auction.png)
@@ -127,7 +160,7 @@ The ZKAuction smart contract is written in **Compact** (Midnight's specialized Z
 graph TD
     A[Next.js Frontend] -->|API Routes| B(Prisma / Neon Postgres)
     A -->|window.midnight.1am| C{1AM Wallet}
-    C -->|Sign Tx| D[Midnight Preprod Network]
+    C -->|Sign Tx| D[Midnight Preview Network]
     A -->|Midnight JS SDK| D
     A -->|Local ZK Proofs| E[Midnight Proof Server]
     B -->|Store off-chain data| F[(Neon DB)]
@@ -180,6 +213,8 @@ ZKAuction/
 │   └── prisma.ts           # Database client
 ├── prisma/                 # Prisma schema for Neon Postgres DB
 ├── public/                 # Static assets and ZK compiled keys
+├── SETUP.md                # Environment setup guide
+├── USAGE.md                # Full usage guide for sellers and bidders
 └── scripts/                # Utility deployment scripts
 ```
 
@@ -207,18 +242,18 @@ npm test
 
 ## 🛠 Getting Started (For First-Time Users)
 
-If you are a judge or a new user wanting to run this project locally, follow these simple steps to set up your Midnight environment and start bidding!
+If you are a judge or a new user wanting to run this project locally, follow these simple steps. For a detailed walkthrough, see [SETUP.md](SETUP.md).
 
 ### Step 1: Install the 1AM Wallet
 ZKAuction interacts with the Midnight Network via the 1AM Wallet browser extension.
 1. Download the **1AM Wallet** extension from the Chrome Web Store (or compatible Chromium browser).
 2. Create a new wallet and securely save your 24-word recovery phrase.
-3. Once created, click on the network dropdown at the top of the wallet and ensure it is set to **Midnight Preprod** (TestNet).
+3. Once created, click on the network dropdown at the top of the wallet and ensure it is set to **Midnight Preview** (Preview).
 
-### Step 2: Get Free TestNet Tokens (Faucet)
+### Step 2: Get Free Preview Tokens (Faucet)
 You need test tokens (tNIGHT) to deploy contracts and place bids.
 1. Copy your wallet address from the 1AM Wallet extension.
-2. Go to the [Midnight Preprod Faucet](https://faucet.testnet-01.midnight.network/).
+2. Go to the [Midnight Preview Faucet](https://faucet.testnet-01.midnight.network/).
 3. Paste your address, request tokens, and wait a few seconds. Your wallet will be funded!
 
 ### Step 3: Run ZKAuction Locally
@@ -241,6 +276,8 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser. Click **"Connect Wallet"**, approve the connection in your 1AM extension, and you are ready to create private auctions!
+
+For full usage instructions (creating auctions, bidding, settling), see [USAGE.md](USAGE.md).
 
 ---
 
