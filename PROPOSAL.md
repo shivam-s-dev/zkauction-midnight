@@ -24,5 +24,5 @@ ZKAuction leverages the Midnight Network's zero-knowledge (ZK) data protection c
 ## 6. Project Status
 - ✅ Smart Contracts written, tested, and compiled.
 - ✅ Frontend built and integrated with Midnight SDK.
-- ✅ Deployed to Midnight Preprod Network.
+- ✅ Deployed to Midnight Preview Network.
 - ✅ E2E Testing passing.

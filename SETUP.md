@@ -1,7 +1,7 @@
 # 🛠 Setup Guide
 
 > [!WARNING]
-> **Network Notice:** ZKAuction runs on the **Midnight Preprod (Preview) Network**. All tokens used are test tokens with no real-world value.
+> **Network Notice:** ZKAuction runs on the **Midnight Preview Network**. All tokens used are test tokens with no real-world value.
 
 This guide walks you through setting up your Midnight wallet environment and running ZKAuction locally from scratch.
 
@@ -27,7 +27,7 @@ ZKAuction interacts with the Midnight Network via the **1AM Wallet** browser ext
 1. Download the **1AM Wallet** extension from the [Chrome Web Store](https://chromewebstore.google.com/detail/1am-wallet/kgdlehkipmdnboflkebhlhfbbkmehhhl) (or any compatible Chromium-based browser).
 2. Open the extension and create a new wallet.
 3. **Securely save your 24-word recovery phrase** — this is the only way to recover your wallet.
-4. Click the **network dropdown** at the top of the wallet and switch it to **Midnight Preprod** (Preview Network).
+4. Click the **network dropdown** at the top of the wallet and switch it to **Midnight Preview** (Preview Network).
 
 ---
 
@@ -75,7 +75,7 @@ cp .env.example .env.local
 Then open `.env.local` and fill in the required values:
 
 ```env
-# Midnight Network Configuration (Preview/Preprod)
+# Midnight Network Configuration (Preview)
 NEXT_PUBLIC_MIDNIGHT_NETWORK=TestNet
 NEXT_PUBLIC_NODE_WS_URL=wss://rpc.testnet-01.midnight.network/ws
 NEXT_PUBLIC_INDEXER_URI=https://indexer.testnet-01.midnight.network/api/v1/graphql
