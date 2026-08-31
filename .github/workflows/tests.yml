@@ -1,4 +1,4 @@
-name: Smart Contracts CI
+name: Tests CI
 
 on:
   push:
