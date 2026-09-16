@@ -49,7 +49,8 @@
 
 ## 🔗 Links
 
-- **Live Deployed App**: [https://zkauction-midnight.vercel.app/](https://zkauction-midnight.vercel.app/)
+- **Live Deployed App**: [https://zkauction-midnight.vercel.app/](https://zkauction-midnight.vercel.app/) 
+- **ZKAuction Pitch Deck**: [Product Pitch](https://drive.google.com/file/d/1OAIqYRCKKLT6c-4WYnT6KX1WgDCQgRUb/view?usp=sharing) 
 - **Deployed Preview Contract**: `6eec85da7d92d58adf85637be652f1921e7233947ce76e9dda0d80e75bb83e65` ([View on Explorer](https://explorer.1am.xyz/contract/6eec85da7d92d58adf85637be652f1921e7233947ce76e9dda0d80e75bb83e65))
 - **Demo Video**: [https://youtu.be/6QF17lxBqp4](https://youtu.be/6QF17lxBqp4)
 - **X (Twitter)**: [@zkauctionweb3](https://x.com/zkauctionweb3)
