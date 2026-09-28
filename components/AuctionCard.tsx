@@ -9,20 +9,17 @@
 import type { AuctionState } from '@/lib/types';
 import { AuctionStatus } from '@/lib/types';
 
+import { useCurrentBlock } from '@/hooks/useCurrentBlock';
+import { CopyButton } from '@/components/CopyButton';
+
 interface AuctionCardProps {
   state: AuctionState;
   contractAddress: string;
-  /** Item description from the database (off-chain) */
   itemDescription?: string;
-  /** True when the current user is the seller of this auction */
   isSeller?: boolean;
-  /** Called when user wants to place a bid */
   onBid?: () => void;
-  /** Called when seller wants to settle */
   onSettle?: () => void;
-  /** Called when either party wants to withdraw after expiry */
   onWithdraw?: () => void;
-  /** Loading state for action buttons */
   isActionPending?: boolean;
 }
 
@@ -36,20 +33,41 @@ export function AuctionCard({
   onWithdraw,
   isActionPending = false,
 }: AuctionCardProps) {
+  const currentBlock = useCurrentBlock();
   const isOpen     = state.status === AuctionStatus.OPEN;
   const isSettled  = state.status === AuctionStatus.SETTLED;
   const isExpired  = state.status === AuctionStatus.EXPIRED;
 
-  // Format tNIGHT from bigint (assuming raw units = µNIGHT, 1 NIGHT = 1_000_000 µNIGHT)
+  // Format tNIGHT from bigint
   const formatNight = (raw: bigint) => {
     if (raw === 0n) return '—';
     const night = Number(raw) / 1_000_000;
     return `${night.toFixed(2)} tNIGHT`;
   };
 
-  // Truncate a hex key for display
   const truncHex = (hex: string) =>
     hex.length > 16 ? `${hex.slice(0, 8)}…${hex.slice(-6)}` : hex;
+
+  // Countdown logic
+  let countdownText = '...';
+  let isEndingSoon = false;
+  if (currentBlock !== null && isOpen) {
+    const blocksLeft = Number(state.auction_end_block) - currentBlock;
+    if (blocksLeft <= 0) {
+      countdownText = 'Ending...';
+    } else {
+      const secondsLeft = blocksLeft * 5;
+      if (secondsLeft < 300) isEndingSoon = true; // < 5 mins
+      
+      const m = Math.floor((secondsLeft % 3600) / 60);
+      const h = Math.floor(secondsLeft / 3600);
+      if (h > 0) {
+        countdownText = `~${h}h ${m}m`;
+      } else {
+        countdownText = `~${m}m`;
+      }
+    }
+  }
 
   return (
     <article
@@ -89,17 +107,38 @@ export function AuctionCard({
           >
             {itemDescription || 'Auction Item'}
           </h2>
-          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4, fontFamily: 'var(--font-mono)' }}>
-            {contractAddress.slice(0, 20)}…
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+              {contractAddress.slice(0, 20)}…
+            </p>
+            <CopyButton text={contractAddress} label="" />
+          </div>
         </div>
 
-        {/* Bid count badge */}
-        <div style={{ textAlign: 'right' }}>
+        {/* Bid count & Share badge */}
+        <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
           <span className="badge badge-purple">
             <BidIcon />
             {state.bid_count} bid{state.bid_count !== 1 ? 's' : ''}
           </span>
+          <button
+            onClick={async () => {
+              const url = `${window.location.origin}/auctions?address=${contractAddress}`;
+              await navigator.clipboard.writeText(url);
+              alert('Link copied to clipboard!');
+            }}
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              color: 'var(--text-secondary)',
+              borderRadius: 6,
+              padding: '4px 8px',
+              fontSize: 11,
+              cursor: 'pointer'
+            }}
+          >
+            🔗 Share Link
+          </button>
         </div>
       </div>
 
@@ -128,8 +167,9 @@ export function AuctionCard({
             {formatNight(state.highest_bid)}
           </div>
           {state.highest_bid > 0n && (
-            <div className="stat-sub" style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>
-              🔑 ZK Winner ID: {truncHex(state.highest_bidder)}
+            <div className="stat-sub" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, display: 'flex', alignItems: 'center', gap: 4 }}>
+              🔑 {truncHex(state.highest_bidder)}
+              <CopyButton text={state.highest_bidder} label="" />
             </div>
           )}
         </div>
@@ -158,9 +198,16 @@ export function AuctionCard({
           flexWrap: 'wrap',
         }}
       >
-        <InfoChip label="Closes at Block" value={state.auction_end_block.toString()} />
+        {isOpen ? (
+          <InfoChip 
+            label="Closes In" 
+            value={countdownText} 
+            highlight={isEndingSoon} 
+          />
+        ) : (
+          <InfoChip label="Closes at Block" value={state.auction_end_block.toString()} />
+        )}
         <InfoChip label="Midnight ZK ID" value={truncHex(state.seller)} mono />
-        <InfoChip label="Item Fingerprint" value={truncHex(state.item_hash)} mono />
       </div>
 
       {/* ── Privacy model strip ── */}
@@ -249,21 +296,22 @@ function StatusBadge({ status }: { status: AuctionStatus }) {
   return <span className={className}>{label}</span>;
 }
 
-function InfoChip({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+function InfoChip({ label, value, mono, highlight }: { label: string; value: string; mono?: boolean; highlight?: boolean }) {
   return (
     <div
       style={{
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.07)',
+        background: highlight ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255,255,255,0.03)',
+        border: highlight ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(255,255,255,0.07)',
         borderRadius: 8,
         padding: '6px 12px',
         display: 'inline-flex',
         flexDirection: 'column',
         gap: 2,
+        transition: 'all 0.3s',
       }}
     >
-      <span style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{label}</span>
-      <span style={{ fontSize: 12, color: 'var(--text-primary)', fontFamily: mono ? 'var(--font-mono)' : 'inherit', fontWeight: 500 }}>{value}</span>
+      <span style={{ fontSize: 10, color: highlight ? '#fca5a5' : 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{label}</span>
+      <span style={{ fontSize: 12, color: highlight ? '#fecaca' : 'var(--text-primary)', fontFamily: mono ? 'var(--font-mono)' : 'inherit', fontWeight: 500, animation: highlight ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none' }}>{value}</span>
     </div>
   );
 }
