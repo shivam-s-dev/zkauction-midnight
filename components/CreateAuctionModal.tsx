@@ -188,22 +188,53 @@ export function CreateAuctionModal({ isOpen, isPending, onClose, onCreate }: Pro
                 htmlFor="duration-blocks"
                 style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 }}
               >
-                Duration (blocks)
+                Duration
               </label>
-              <input
-                id="duration-blocks"
-                type="number"
-                className="input"
-                placeholder="100"
-                min="1"
-                step="1"
-                value={durationBlocks}
-                onChange={e => setDurationBlocks(e.target.value)}
-                disabled={isPending}
-              />
-              <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
-                Midnight Preprod: ~5 seconds/block. 100 blocks ≈ 8 minutes.
-              </p>
+              
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+                {[
+                  { label: '15m', blocks: 180 },
+                  { label: '1h', blocks: 720 },
+                  { label: '4h', blocks: 2880 },
+                  { label: '1d', blocks: 17280 },
+                  { label: '3d', blocks: 51840 }
+                ].map(preset => (
+                  <button
+                    key={preset.label}
+                    type="button"
+                    onClick={() => setDurationBlocks(preset.blocks.toString())}
+                    style={{
+                      background: durationBlocks === preset.blocks.toString() ? 'var(--purple-500)' : 'rgba(255,255,255,0.05)',
+                      color: durationBlocks === preset.blocks.toString() ? '#fff' : 'var(--text-primary)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      padding: '6px 12px',
+                      borderRadius: 16,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input
+                  id="duration-blocks"
+                  type="number"
+                  className="input"
+                  placeholder="Custom blocks"
+                  min="1"
+                  step="1"
+                  value={durationBlocks}
+                  onChange={e => setDurationBlocks(e.target.value)}
+                  disabled={isPending}
+                  style={{ width: '120px' }}
+                />
+                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>blocks (approx {(Number(durationBlocks) * 5 / 60).toFixed(1)} mins)</span>
+              </div>
               {errors.durationBlocks && <FieldError msg={errors.durationBlocks} />}
             </div>
 

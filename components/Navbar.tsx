@@ -2,10 +2,12 @@
 
 /**
  * components/Navbar.tsx
- * Top navigation bar with ZKAuction branding and 1AM wallet connect button.
+ * Top navigation bar with ZKAuction branding, 1AM wallet connect button, theme toggle, and mobile menu.
  */
 
+import { useState } from 'react';
 import type { WalletHookState } from '@/hooks/useWallet';
+import { useTheme } from '@/hooks/useTheme';
 import Link from 'next/link';
 
 interface NavbarProps {
@@ -13,6 +15,9 @@ interface NavbarProps {
 }
 
 export function Navbar({ wallet }: NavbarProps) {
+  const { theme, toggleTheme } = useTheme();
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <header
       role="banner"
@@ -20,69 +25,83 @@ export function Navbar({ wallet }: NavbarProps) {
         position: 'sticky',
         top: 0,
         zIndex: 100,
-        borderBottom: '1px solid rgba(139,92,246,0.15)',
+        borderBottom: '1px solid var(--glass-border)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        background: 'rgba(8,10,18,0.85)',
+        background: 'var(--glass-bg)',
       }}
     >
       <div className="px-4 md:px-6 h-16" style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        {/* Logo */}
+        
+        {/* Logo & Mobile Menu Toggle */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* ZKAuction logo from /public/logo.png */}
-          <div
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 10,
-              overflow: 'hidden',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-              filter: 'drop-shadow(0 0 12px rgba(139,92,246,0.5))',
-            }}
+          {/* Mobile Hamburger */}
+          <button
+            className="md:hidden"
+            onClick={() => setMenuOpen(!menuOpen)}
+            style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', padding: 4 }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/logo.png"
-              alt="ZKAuction logo"
-              width={40}
-              height={40}
-              style={{ objectFit: 'contain', width: '100%', height: '100%' }}
-            />
-          </div>
-          <div>
-            <span
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style={{ width: 24, height: 24 }}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={menuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+            </svg>
+          </button>
+          
+          {/* ZKAuction logo from /public/logo.png */}
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
+            <div
               style={{
-                fontFamily: 'var(--font-display)',
-                fontWeight: 700,
-                fontSize: 18,
-                background: 'linear-gradient(135deg, #a78bfa, #22d3ee)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                letterSpacing: '-0.02em',
+                width: 40,
+                height: 40,
+                borderRadius: 10,
+                overflow: 'hidden',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                filter: 'drop-shadow(0 0 12px rgba(139,92,246,0.5))',
               }}
             >
-              ZKAuction
-            </span>
-            <span
-              style={{
-                display: 'block',
-                fontSize: 10,
-                color: 'var(--text-muted)',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                fontWeight: 500,
-                marginTop: -2,
-              }}
-            >
-              Midnight Network
-            </span>
-          </div>
+              <img
+                src="/logo.png"
+                alt="ZKAuction logo"
+                width={40}
+                height={40}
+                style={{ objectFit: 'contain', width: '100%', height: '100%' }}
+              />
+            </div>
+            <div>
+              <span
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontWeight: 700,
+                  fontSize: 18,
+                  background: 'var(--grad-purple-cyan)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  letterSpacing: '-0.02em',
+                }}
+              >
+                ZKAuction
+              </span>
+              <span
+                style={{
+                  display: 'block',
+                  fontSize: 10,
+                  color: 'var(--text-muted)',
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  fontWeight: 500,
+                  marginTop: -2,
+                }}
+              >
+                Midnight Network
+              </span>
+            </div>
+          </Link>
         </div>
 
+        {/* Desktop Navigation */}
         <nav
           aria-label="Main navigation"
           className="hidden md:flex items-center gap-1"
@@ -92,81 +111,141 @@ export function Navbar({ wallet }: NavbarProps) {
           <NavLink href="/privacy">Privacy Model</NavLink>
         </nav>
 
-        {/* Wallet button area */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
-          {wallet.isConnected ? (
-            <ConnectedBadge
-              address={wallet.shortAddress!}
-              onDisconnect={wallet.disconnect}
-            />
-          ) : wallet.isPendingError ? (
-            /* ── "Already pending" error state ── */
-            <PendingErrorBadge onReset={wallet.resetAndReconnect} onDiscard={wallet.disconnect} />
-          ) : (
-            <>
-              <button
-                id="wallet-connect-btn"
-                className="btn btn-primary"
-                onClick={wallet.connect}
-                disabled={wallet.isConnecting}
-                aria-label="Connect 1AM wallet"
-                style={{ gap: 8, fontSize: 13, padding: '9px 18px' }}
-              >
-                {wallet.isConnecting ? (
-                  <>
-                    <span className="spinner" style={{ width: 14, height: 14 }} />
-                    Connecting…
-                  </>
-                ) : (
-                  <>
-                    <WalletIcon />
-                    Connect Wallet
-                  </>
+        {/* Wallet button area & Theme Toggle */}
+        <div className="hidden md:flex items-center gap-4 position-relative">
+          <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+          
+          <div style={{ position: 'relative' }}>
+            {wallet.isConnected ? (
+              <ConnectedBadge
+                address={wallet.shortAddress!}
+                balance={wallet.balance}
+                onDisconnect={wallet.disconnect}
+              />
+            ) : wallet.isPendingError ? (
+              <PendingErrorBadge onReset={wallet.resetAndReconnect} onDiscard={wallet.disconnect} />
+            ) : (
+              <>
+                <button
+                  id="wallet-connect-btn"
+                  className="btn btn-primary"
+                  onClick={wallet.connect}
+                  disabled={wallet.isConnecting}
+                  aria-label="Connect 1AM wallet"
+                  style={{ gap: 8, fontSize: 13, padding: '9px 18px' }}
+                >
+                  {wallet.isConnecting ? (
+                    <>
+                      <span className="spinner" style={{ width: 14, height: 14 }} />
+                      Connecting…
+                    </>
+                  ) : (
+                    <>
+                      <WalletIcon />
+                      Connect Wallet
+                    </>
+                  )}
+                </button>
+                {wallet.isConnecting && wallet.debugInfo && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: 0,
+                    marginTop: 8,
+                    padding: '8px 14px',
+                    background: 'var(--bg-elevated)',
+                    border: '1px solid var(--glass-border)',
+                    borderRadius: 8,
+                    fontSize: 12,
+                    color: 'var(--purple-400)',
+                    whiteSpace: 'nowrap',
+                    zIndex: 200,
+                  }}>
+                    ⏳ {wallet.debugInfo}
+                  </div>
                 )}
-              </button>
-              {/* Debug info shown while connecting */}
-              {wallet.isConnecting && wallet.debugInfo && (
-                <div style={{
-                  position: 'absolute',
-                  top: '100%',
-                  right: 0,
-                  marginTop: 8,
-                  padding: '8px 14px',
-                  background: 'rgba(8,10,18,0.95)',
-                  border: '1px solid rgba(139,92,246,0.3)',
-                  borderRadius: 8,
-                  fontSize: 12,
-                  color: 'var(--purple-300)',
-                  whiteSpace: 'nowrap',
-                  zIndex: 200,
-                }}>
-                  ⏳ {wallet.debugInfo}
-                </div>
-              )}
-              {/* Generic (non-pending) error */}
-              {!wallet.isConnecting && wallet.error && !wallet.isPendingError && (
-                <div style={{
-                  position: 'absolute',
-                  top: '100%',
-                  right: 0,
-                  marginTop: 8,
-                  padding: '10px 14px',
-                  background: 'rgba(239,68,68,0.08)',
-                  border: '1px solid rgba(239,68,68,0.3)',
-                  borderRadius: 8,
-                  fontSize: 12,
-                  color: '#fca5a5',
-                  maxWidth: 280,
-                  zIndex: 200,
-                }}>
-                  ⚠️ {wallet.error}
-                </div>
-              )}
-            </>
-          )}
+                {!wallet.isConnecting && wallet.error && !wallet.isPendingError && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: 0,
+                    marginTop: 8,
+                    padding: '10px 14px',
+                    background: 'rgba(239,68,68,0.08)',
+                    border: '1px solid rgba(239,68,68,0.3)',
+                    borderRadius: 8,
+                    fontSize: 12,
+                    color: '#fca5a5',
+                    maxWidth: 280,
+                    zIndex: 200,
+                  }}>
+                    ⚠️ {wallet.error}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {menuOpen && (
+        <div className="md:hidden" style={{ borderTop: '1px solid var(--glass-border)', padding: '16px 24px', background: 'var(--bg-elevated)' }}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
+            <Link href="/" onClick={() => setMenuOpen(false)} style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>Home</Link>
+            <Link href="/auctions" onClick={() => setMenuOpen(false)} style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>Auctions</Link>
+            <Link href="/privacy" onClick={() => setMenuOpen(false)} style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>Privacy Model</Link>
+          </nav>
+          
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+            <span style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Theme</span>
+            <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+          </div>
+
+          <div>
+            {wallet.isConnected ? (
+              <ConnectedBadge
+                address={wallet.shortAddress!}
+                balance={wallet.balance}
+                onDisconnect={() => { wallet.disconnect(); setMenuOpen(false); }}
+              />
+            ) : (
+              <button
+                className="btn btn-primary"
+                style={{ width: '100%', justifyContent: 'center' }}
+                onClick={() => { wallet.connect(); setMenuOpen(false); }}
+              >
+                <WalletIcon />
+                Connect Wallet
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </header>
+  );
+}
+
+function ThemeToggle({ theme, toggleTheme }: { theme: 'light' | 'dark'; toggleTheme: () => void }) {
+  return (
+    <button 
+      onClick={toggleTheme}
+      style={{
+        background: 'rgba(139,92,246,0.1)',
+        border: '1px solid var(--glass-border)',
+        borderRadius: '50%',
+        width: 36,
+        height: 36,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        color: 'var(--text-primary)',
+      }}
+      aria-label="Toggle Theme"
+    >
+      {theme === 'dark' ? '☀️' : '🌙'}
+    </button>
   );
 }
 
@@ -197,10 +276,6 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   );
 }
 
-/**
- * Shown when the 1AM wallet throws "Connection request already pending".
- * Instructs the user to dismiss the wallet popup, then offers Discard & Retry.
- */
 function PendingErrorBadge({
   onReset,
   onDiscard,
@@ -210,7 +285,6 @@ function PendingErrorBadge({
 }) {
   return (
     <div style={{ position: 'relative' }}>
-      {/* Amber warning badge inline with navbar */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -227,12 +301,11 @@ function PendingErrorBadge({
         <span>Connection pending…</span>
       </div>
 
-      {/* Dropdown panel */}
       <div style={{
         position: 'absolute',
         top: 'calc(100% + 8px)',
         right: 0,
-        background: 'rgba(8,10,18,0.97)',
+        background: 'var(--bg-elevated)',
         border: '1px solid rgba(251,191,36,0.35)',
         borderRadius: 12,
         padding: '16px',
@@ -250,15 +323,13 @@ function PendingErrorBadge({
         </p>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
-            id="wallet-pending-retry-btn"
             className="btn btn-primary"
             onClick={onReset}
             style={{ fontSize: 12, padding: '7px 14px', flex: 1, gap: 6 }}
           >
-            🔄 Discard &amp; Retry
+            🔄 Discard & Retry
           </button>
           <button
-            id="wallet-pending-cancel-btn"
             className="btn btn-ghost"
             onClick={onDiscard}
             style={{ fontSize: 12, padding: '7px 12px' }}
@@ -271,10 +342,30 @@ function PendingErrorBadge({
   );
 }
 
-function ConnectedBadge({ address, onDisconnect }: { address: string; onDisconnect: () => void }) {
+function ConnectedBadge({ address, balance, onDisconnect }: { address: string; balance: string | null; onDisconnect: () => void }) {
+  const isLowBalance = balance && Number(balance) < 50;
+
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      {/* Live indicator */}
+      {balance && (
+        <div
+          style={{
+            padding: '8px 12px',
+            background: isLowBalance ? 'rgba(251,191,36,0.1)' : 'rgba(139,92,246,0.1)',
+            border: `1px solid ${isLowBalance ? 'rgba(251,191,36,0.3)' : 'rgba(139,92,246,0.2)'}`,
+            borderRadius: 10,
+            fontSize: 13,
+            color: isLowBalance ? '#fde68a' : 'var(--text-primary)',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6
+          }}
+          title="tNIGHT Balance"
+        >
+          ⬡ {balance}
+        </div>
+      )}
       <div
         style={{
           display: 'flex',
