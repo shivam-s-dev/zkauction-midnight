@@ -27,6 +27,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { Walkthrough } from '@/components/Walkthrough';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -35,6 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased">
+        <Walkthrough />
         {children}
         <Analytics />
       </body>
