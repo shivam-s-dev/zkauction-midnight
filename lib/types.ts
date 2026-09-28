@@ -88,6 +88,9 @@ export interface PlaceBidParams {
 
   // The deployed contract address to bid on
   contract_address: string;
+
+  // Progress callback for UI
+  onProgress?: (step: number) => void;
 }
 
 // ── Transaction Result ───────────────────────────────────────────────────────

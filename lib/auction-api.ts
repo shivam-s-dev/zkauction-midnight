@@ -148,7 +148,7 @@ export class AuctionAPI {
    *
    * @returns The deployed contract address (share this with bidders)
    */
-  async deploy(params: CreateAuctionParams): Promise<string> {
+  async deploy(params: CreateAuctionParams): Promise<{ contractAddress: string; salt: string; reservePrice: bigint }> {
     this.ensureProviders();
 
     const salt = new Uint8Array(32);
@@ -235,7 +235,11 @@ export class AuctionAPI {
         privateStateId: PRIVATE_STATE_ID,
       });
 
-      return contractAddress;
+      return {
+        contractAddress,
+        salt: Buffer.from(salt).toString('hex'),
+        reservePrice: params.reserve_price
+      };
     } catch (error) {
       throw new AuctionApiError(
         AuctionErrorCode.CIRCUIT_CALL_FAILED,
@@ -264,6 +268,8 @@ export class AuctionAPI {
     this.ensureProviders();
 
     try {
+      params.onProgress?.(0); // Preparing Witnesses
+
       if (this.providers.privateStateProvider && (this.providers.privateStateProvider as any).setContractAddress) {
         (this.providers.privateStateProvider as any).setContractAddress(params.contract_address);
       }
@@ -271,17 +277,16 @@ export class AuctionAPI {
       let storedState: AuctionPrivateState | null = null;
       try {
         storedState = await this.providers.privateStateProvider.get(PRIVATE_STATE_ID);
-      } catch (e: any) {
-        // Ignore, handled below
-      }
+      } catch (e: any) {}
       if (!storedState) {
-        // If not found or null, initialize it (needed for bidders)
         storedState = { local_secret_key: this.witnesses.local_secret_key() };
         await this.providers.privateStateProvider.set(PRIVATE_STATE_ID, storedState);
       }
       
+      params.onProgress?.(1); // Generating Proof
       const compiledContract = await buildCompiledContract(storedState);
 
+      params.onProgress?.(2); // Submitting
       await (submitCallTxAsync as any)(this.providers, {
         compiledContract,
         contractAddress: params.contract_address,
@@ -289,6 +294,9 @@ export class AuctionAPI {
         args:            [params.amount],
         privateStateId:  PRIVATE_STATE_ID,
       });
+
+      params.onProgress?.(3); // Confirmed
+
 
       const newState = await this.getState(params.contract_address);
       return { txHash: '', blockHeight: 0, timestamp: Date.now(), newState };
