@@ -9,6 +9,7 @@
 import type { AuctionState } from '@/lib/types';
 import { AuctionStatus } from '@/lib/types';
 
+import { useState, useEffect } from 'react';
 import { useCurrentBlock } from '@/hooks/useCurrentBlock';
 import { CopyButton } from '@/components/CopyButton';
 
@@ -37,6 +38,25 @@ export function AuctionCard({
   const isOpen     = state.status === AuctionStatus.OPEN;
   const isSettled  = state.status === AuctionStatus.SETTLED;
   const isExpired  = state.status === AuctionStatus.EXPIRED;
+
+  // Check if outbid
+  const [isOutbid, setIsOutbid] = useState(false);
+  const [isWinning, setIsWinning] = useState(false);
+
+  useEffect(() => {
+    try {
+      const myIdentity = localStorage.getItem(`zkauction:bidder:${contractAddress}`);
+      if (myIdentity) {
+        if (state.highest_bidder === myIdentity) {
+          setIsWinning(true);
+          setIsOutbid(false);
+        } else if (state.highest_bidder && state.highest_bidder !== myIdentity && state.highest_bid > 0n) {
+          setIsWinning(false);
+          setIsOutbid(true);
+        }
+      }
+    } catch {}
+  }, [contractAddress, state.highest_bidder, state.highest_bid]);
 
   // Format tNIGHT from bigint
   const formatNight = (raw: bigint) => {
@@ -93,25 +113,38 @@ export function AuctionCard({
 
       {/* Header row */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
-        <div>
-          <StatusBadge status={state.status} />
-          <h2
+        <div style={{ display: 'flex', gap: 16 }}>
+          {/* Generative Avatar */}
+          <div
             style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 20,
-              fontWeight: 700,
-              marginTop: 10,
-              color: 'var(--text-primary)',
-              wordBreak: 'break-word',
+              width: 56,
+              height: 56,
+              borderRadius: 12,
+              background: `linear-gradient(135deg, #${state.item_hash.slice(0,6)}, #${state.item_hash.slice(-6)})`,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              flexShrink: 0,
             }}
-          >
-            {itemDescription || 'Auction Item'}
-          </h2>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-            <p style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-              {contractAddress.slice(0, 20)}…
-            </p>
-            <CopyButton text={contractAddress} label="" />
+          />
+          <div>
+            <StatusBadge status={state.status} />
+            <h2
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 20,
+                fontWeight: 700,
+                marginTop: 6,
+                color: 'var(--text-primary)',
+                wordBreak: 'break-word',
+              }}
+            >
+              {itemDescription || 'Auction Item'}
+            </h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                {contractAddress.slice(0, 20)}…
+              </p>
+              <CopyButton text={contractAddress} label="" />
+            </div>
           </div>
         </div>
 
@@ -232,6 +265,24 @@ export function AuctionCard({
           <PrivacyRow icon="🔒" label="Hidden" value="Who placed which bid" />
         </div>
       </div>
+
+      {/* ── Status Alerts ── */}
+      {isOutbid && isOpen && (
+        <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--red-400)', color: '#fca5a5', padding: '12px 16px', borderRadius: 8, marginBottom: 20, fontSize: 13, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span>⚠️</span>
+          <div style={{ flex: 1 }}>
+            <strong>You have been outbid!</strong> Another bidder has placed a higher bid.
+          </div>
+        </div>
+      )}
+      {isWinning && isOpen && (
+        <div style={{ background: 'rgba(74, 222, 128, 0.1)', border: '1px solid var(--green-400)', color: '#86efac', padding: '12px 16px', borderRadius: 8, marginBottom: 20, fontSize: 13, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span>🏆</span>
+          <div style={{ flex: 1 }}>
+            <strong>You are the highest bidder!</strong>
+          </div>
+        </div>
+      )}
 
       {/* ── Action buttons ── */}
       <div style={{ display: 'flex', gap: 10 }}>

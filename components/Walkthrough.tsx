@@ -24,7 +24,7 @@ export function Walkthrough() {
     },
     {
       title: "Step 1: Install 1AM Wallet 🦊",
-      desc: "To interact with ZKAuction, you need the 1AM Wallet browser extension configured to the Midnight Preprod (Preview) Network. This wallet handles your private keys and zero-knowledge proofs.",
+      desc: "To interact with ZKAuction, you need the 1AM Wallet browser extension configured to the Midnight Preprod (Preprod) Network. This wallet handles your private keys and zero-knowledge proofs.",
     },
     {
       title: "Step 2: Get tNIGHT Tokens 🚰",
