@@ -18,6 +18,7 @@ export interface WalletHookState {
   address: string | null;
   coinPublicKey: string | null;  // <--- ADDED THIS
   shortAddress: string | null;
+  balance: string | null;        // <--- ADDED F-06
   error: string | null;
   connector: MidnightWalletConnector | null;
   connect: () => Promise<void>;
@@ -120,8 +121,8 @@ async function connectToWallet(wallet: any, key: string): Promise<MidnightWallet
   if (typeof wallet.connect === 'function') {
     console.log('[ZKAuction] Using .connect()');
     // Pass the EXACT network ID string — must match what the 1AM wallet expects.
-    // Set NEXT_PUBLIC_MIDNIGHT_NETWORK in .env.local to 'preview', 'preprod', or 'devnet'.
-    const networkId = (process.env.NEXT_PUBLIC_MIDNIGHT_NETWORK ?? 'preview').toLowerCase();
+    // Set NEXT_PUBLIC_MIDNIGHT_NETWORK in .env.local to 'preprod', 'preprod', or 'devnet'.
+    const networkId = (process.env.NEXT_PUBLIC_MIDNIGHT_NETWORK ?? 'preprod').toLowerCase();
     console.log('[ZKAuction] Connecting to network:', networkId);
     const result = await wallet.connect(networkId);
     if (result && typeof result === 'object') return result;
@@ -206,6 +207,30 @@ async function getAddress(conn: any): Promise<string | null> {
 }
 
 /**
+ * Get wallet balance from connector.
+ */
+async function getBalance(conn: any): Promise<string | null> {
+  try {
+    if (typeof conn.state === 'function') {
+      const s = await conn.state();
+      // s.balances might be a Record<string, bigint> where 'tNIGHT' or empty string is the native token
+      if (s?.balances) {
+        const keys = Object.keys(s.balances);
+        if (keys.length > 0) {
+          const raw = s.balances[keys[0]];
+          if (typeof raw === 'bigint') {
+            return (Number(raw) / 1_000_000).toFixed(2); // format as tNIGHT
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('[ZKAuction] Could not get balance:', e);
+  }
+  return null;
+}
+
+/**
  * Poll for wallet injection until found or timeout.
  */
 async function waitForWallet(timeoutMs: number): Promise<{ wallet: any; key: string } | null> {
@@ -224,6 +249,7 @@ export function useWallet(): WalletHookState {
   const [isPendingError, setIsPendingError] = useState(false);
   const [address, setAddress] = useState<string | null>(null);
   const [coinPublicKey, setCoinPublicKey] = useState<string | null>(null);
+  const [balance, setBalance] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
   const [connector, setConnector] = useState<MidnightWalletConnector | null>(null);
@@ -245,6 +271,7 @@ export function useWallet(): WalletHookState {
         }
         const conn = await connectToWallet(found.wallet, found.key);
         const addr = await getAddress(conn);
+        const bal = await getBalance(conn);
         
         let cpk = null;
         if (typeof conn.getShieldedAddresses === 'function') {
@@ -254,6 +281,7 @@ export function useWallet(): WalletHookState {
 
         setConnector(conn as MidnightWalletConnector);
         setAddress(addr);
+        setBalance(bal);
         setCoinPublicKey(cpk);
         setIsConnected(true);
       } catch {
@@ -300,6 +328,7 @@ export function useWallet(): WalletHookState {
       const conn = await connectToWallet(found.wallet, found.key);
 
       const addr = await getAddress(conn);
+      const bal = await getBalance(conn);
       let cpk = null;
       if (typeof conn.getShieldedAddresses === 'function') {
         const s = await conn.getShieldedAddresses();
@@ -308,6 +337,7 @@ export function useWallet(): WalletHookState {
 
       setConnector(conn as MidnightWalletConnector);
       setAddress(addr);
+      setBalance(bal);
       setCoinPublicKey(cpk);
       setIsConnected(true);
       setDebugInfo(null);
@@ -343,6 +373,7 @@ export function useWallet(): WalletHookState {
   const disconnect = useCallback(() => {
     setConnector(null);
     setAddress(null);
+    setBalance(null);
     setIsConnected(false);
     setError(null);
     setIsPendingError(false);
@@ -356,6 +387,7 @@ export function useWallet(): WalletHookState {
     address,
     coinPublicKey,
     shortAddress,
+    balance,
     error,
     debugInfo,
     connector,
