@@ -1,7 +1,7 @@
 # 🛠 Setup Guide
 
 > [!WARNING]
-> **Network Notice:** ZKAuction runs on the **Midnight Preview Network**. All tokens used are test tokens with no real-world value.
+> **Network Notice:** ZKAuction runs on the **Midnight Preprod Network**. All tokens used are test tokens with no real-world value.
 
 This guide walks you through setting up your Midnight wallet environment and running ZKAuction locally from scratch.
 
@@ -27,16 +27,16 @@ ZKAuction interacts with the Midnight Network via the **1AM Wallet** browser ext
 1. Download the **1AM Wallet** extension from the [Chrome Web Store](https://chromewebstore.google.com/detail/1am-wallet/kgdlehkipmdnboflkebhlhfbbkmehhhl) (or any compatible Chromium-based browser).
 2. Open the extension and create a new wallet.
 3. **Securely save your 24-word recovery phrase** — this is the only way to recover your wallet.
-4. Click the **network dropdown** at the top of the wallet and switch it to **Midnight Preview** (Preview Network).
+4. Click the **network dropdown** at the top of the wallet and switch it to **Midnight Preprod** (Preprod Network).
 
 ---
 
-## Step 2: Get Free Preview Tokens (Faucet)
+## Step 2: Get Free Preprod Tokens (Faucet)
 
 You need test tokens (`tNIGHT`) to create auctions and place bids.
 
 1. Open the 1AM Wallet and copy your wallet address.
-2. Go to the [**Midnight Preview Faucet**](https://faucet.testnet-01.midnight.network/).
+2. Go to the [**Midnight Preprod Faucet**](https://faucet.testnet-01.midnight.network/).
 3. Paste your wallet address into the faucet form and submit.
 4. Wait a few seconds. The tokens will appear in your wallet once the transaction confirms on-chain.
 
@@ -75,7 +75,7 @@ cp .env.example .env.local
 Then open `.env.local` and fill in the required values:
 
 ```env
-# Midnight Network Configuration (Preview)
+# Midnight Network Configuration (Preprod)
 NEXT_PUBLIC_MIDNIGHT_NETWORK=TestNet
 NEXT_PUBLIC_NODE_WS_URL=wss://rpc.testnet-01.midnight.network/ws
 NEXT_PUBLIC_INDEXER_URI=https://indexer.testnet-01.midnight.network/api/v1/graphql
@@ -140,7 +140,7 @@ This creates an optimized production bundle in the `.next/` directory.
 
 | Issue | Solution |
 | --- | --- |
-| Wallet not connecting | Make sure the 1AM Wallet extension is installed and set to the **Preview** network |
+| Wallet not connecting | Make sure the 1AM Wallet extension is installed and set to the **Preprod** network |
 | `DATABASE_URL` error during build | Use a dummy URL or provide a real Neon Postgres connection string |
 | ZK proof generation is slow | This is expected — ZK proofs are computationally intensive and can take 10–30 seconds |
-| Transaction pending for a long time | The Midnight Preview Network may be congested; wait and retry |
+| Transaction pending for a long time | The Midnight Preprod Network may be congested; wait and retry |

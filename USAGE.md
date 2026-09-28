@@ -1,9 +1,9 @@
 # 📘 Usage Guide
 
 > [!WARNING]
-> **Network Notice:** ZKAuction runs on the **Midnight Preview Network**. All tokens used are test tokens with no real-world value.
+> **Network Notice:** ZKAuction runs on the **Midnight Preprod Network**. All tokens used are test tokens with no real-world value.
 
-This guide explains how to use ZKAuction as both a **Seller** (creating auctions) and a **Bidder** (placing bids), as well as how to settle and interact with the live Preview deployment.
+This guide explains how to use ZKAuction as both a **Seller** (creating auctions) and a **Bidder** (placing bids), as well as how to settle and interact with the live Preprod deployment.
 
 ---
 
@@ -13,7 +13,7 @@ This guide explains how to use ZKAuction as both a **Seller** (creating auctions
 - **Contract Explorer**: [View on 1AM Explorer](https://explorer.1am.xyz/contract/6eec85da7d92d58adf85637be652f1921e7233947ce76e9dda0d80e75bb83e65)
 
 > [!NOTE]
-> You must have the 1AM Wallet browser extension installed and funded with Preview tokens before using the app. See [SETUP.md](SETUP.md) for wallet setup instructions.
+> You must have the 1AM Wallet browser extension installed and funded with Preprod tokens before using the app. See [SETUP.md](SETUP.md) for wallet setup instructions.
 
 ---
 
@@ -155,4 +155,4 @@ The ZKAuction contract exposes four circuits. Understanding them helps you verif
 All on-chain activity can be verified publicly via the **1AM Midnight Explorer**:
 
 - **Live Contract**: [View Contract](https://explorer.1am.xyz/contract/6eec85da7d92d58adf85637be652f1921e7233947ce76e9dda0d80e75bb83e65)
-- **Network**: Midnight Preview (Preview)
+- **Network**: Midnight Preprod (Preprod)
