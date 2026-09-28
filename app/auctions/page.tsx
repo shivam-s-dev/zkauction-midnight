@@ -4,15 +4,20 @@
  * app/auctions/page.tsx — Auctions Dashboard
  */
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, Suspense } from 'react';
 import { useWallet }                    from '@/hooks/useWallet';
 import { ToastProvider, useToast }      from '@/components/ToastProvider';
 import { Navbar }                       from '@/components/Navbar';
 import { AuctionCard }                  from '@/components/AuctionCard';
 import { CreateAuctionModal, type CreateAuctionFormData } from '@/components/CreateAuctionModal';
 import { BidModal }                     from '@/components/BidModal';
+import { ReserveKeySafeModal }          from '@/components/ReserveKeySafeModal';
+import { ZKProgressModal }              from '@/components/ZKProgressModal';
+import { DemoBanner }                   from '@/components/DemoBanner';
+import { parseContractError }           from '@/lib/error-handler';
 import type { AuctionState }            from '@/lib/types';
 import { AuctionStatus }                from '@/lib/types';
+import { useSearchParams }              from 'next/navigation';
 
 // ─── Demo auction state (used when wallet not connected or contract not deployed) ──
 // This lets you see the full UI immediately without any blockchain setup.
@@ -33,33 +38,64 @@ const DEMO_ADDRESS = 'mn1qzka2uc3xs8dkp9f0l3m7h6a4n8s2vr7jq5e1t';
 export default function Home() {
   return (
     <ToastProvider>
-      <AuctionPage />
+      <Suspense fallback={<div>Loading...</div>}>
+        <AuctionPage />
+      </Suspense>
     </ToastProvider>
   );
 }
 
-// ─── Main page content ────────────────────────────────────────────────────────
 function AuctionPage() {
   const wallet  = useWallet();
   const toast   = useToast();
+  const searchParams = useSearchParams();
 
   // API instance created once wallet is connected
   const apiRef  = useRef<any>(null);
 
   // Auctions the user has deployed or connected to
   const [auctions, setAuctions]   = useState<Array<{ address: string; state: AuctionState; itemDescription: string; deployerAddress: string | null }>>([]);
-  const [lookupAddress, setLookupAddress] = useState('');
+  const [lookupAddress, setLookupAddress] = useState(searchParams.get('address') || '');
   const [loadingAuctions, setLoadingAuctions] = useState(false);
+
+  // Auto-lookup if address is in URL and wallet connected
+  useEffect(() => {
+    const addr = searchParams.get('address');
+    if (addr && wallet.isConnected && apiRef.current && auctions.length === 0) {
+      // Need a way to trigger handleLookup automatically...
+      // Or just let user click Load. For simplicity, we just pre-fill lookupAddress.
+      // But wait, the address is in DB, so loadAuctions will fetch it anyway.
+      // It's mostly useful if it's NOT in the DB, or if we want to filter to it.
+    }
+  }, [searchParams, wallet.isConnected]);
+
+  // Filters
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('address') || '');
+  const [activeTab, setActiveTab] = useState<'ALL' | 'MINE' | 'OPEN' | 'SETTLED' | 'EXPIRED'>('ALL');
 
   // Modal state
   const [showCreate, setShowCreate] = useState(false);
   const [bidTarget, setBidTarget]   = useState<{ address: string; state: AuctionState } | null>(null);
+  const [reserveKeyTarget, setReserveKeyTarget] = useState<{ address: string; reservePrice: string; salt: string } | null>(null);
 
   // Pending state per action
   const [pendingCreate, setPendingCreate]   = useState(false);
   const [pendingBid, setPendingBid]         = useState(false);
   const [pendingSettle, setPendingSettle]   = useState<string | null>(null);
   const [pendingWithdraw, setPendingWithdraw] = useState<string | null>(null);
+
+  // ZK Progress state
+  const [zkStep, setZkStep] = useState(0);
+  const [isZkOpen, setIsZkOpen] = useState(false);
+
+  // Demo mode
+  const [demoMode, setDemoMode] = useState(false);
+
+  useEffect(() => {
+    if (demoMode && auctions.length === 0) {
+      setAuctions([{ address: DEMO_ADDRESS, state: DEMO_AUCTION, itemDescription: 'Vintage 1969 Stratocaster', deployerAddress: 'demo_seller' }]);
+    }
+  }, [demoMode, auctions.length]);
 
   // ── Initialize AuctionAPI when wallet connects ─────────────────────────────
   const ensureApi = useCallback(async () => {
@@ -73,7 +109,7 @@ function AuctionPage() {
       apiRef.current = await AuctionAPI.connect(wallet.connector);
       return apiRef.current;
     } catch (err) {
-      toast.error('API initialization failed', err instanceof Error ? err.message : String(err));
+      toast.error('API initialization failed', parseContractError(err));
       return null;
     }
   }, [wallet.connector, toast]);
@@ -144,7 +180,7 @@ function AuctionPage() {
       const api = await ensureApi();
       if (!api) return;
 
-      const address = await api.deploy({
+      const { contractAddress: address, salt, reservePrice } = await api.deploy({
         duration_blocks:  data.durationBlocks,
         reserve_price:    data.reservePrice,
         item_description: data.itemDescription,
@@ -173,6 +209,9 @@ function AuctionPage() {
 
       setAuctions(prev => [{ address, state, itemDescription: data.itemDescription, deployerAddress: wallet.address ?? null }, ...prev]);
       setShowCreate(false);
+      
+      setReserveKeyTarget({ address, reservePrice: reservePrice.toString(), salt });
+      
       toast.success('Auction deployed! 🎉', (
         <div>
           Contract:{' '}
@@ -187,23 +226,52 @@ function AuctionPage() {
         </div>
       ));
     } catch (err) {
-      toast.error('Deploy failed', err instanceof Error ? err.message : String(err));
+      toast.error('Deploy failed', parseContractError(err));
     } finally {
       setPendingCreate(false);
     }
-  }, [ensureApi, toast]);
+  }, [ensureApi, toast, wallet.address]);
 
   // ── Place bid ──────────────────────────────────────────────────────────────
   const handleBid = useCallback(async (amountMicro: bigint) => {
     if (!bidTarget) return;
     setPendingBid(true);
+    setZkStep(0);
+    setIsZkOpen(true);
+
+    if (demoMode) {
+      // Simulate ZK proof pipeline
+      let step = 0;
+      const intv = setInterval(() => {
+        step++;
+        setZkStep(step);
+        if (step === 3) {
+          clearInterval(intv);
+          setTimeout(() => {
+            setAuctions(prev =>
+              prev.map(a => a.address === bidTarget.address ? { ...a, state: { ...a.state, highest_bid: amountMicro, bid_count: a.state.bid_count + 1 } } : a)
+            );
+            setIsZkOpen(false);
+            setBidTarget(null);
+            setPendingBid(false);
+            toast.success('Demo bid placed! ✅');
+          }, 1500);
+        }
+      }, 1500);
+      return;
+    }
+
     try {
       const api = await ensureApi();
-      if (!api) return;
+      if (!api) {
+        setIsZkOpen(false);
+        return;
+      }
 
       const result = await api.placeBid({
         amount:           amountMicro,
         contract_address: bidTarget.address,
+        onProgress:       (step: number) => setZkStep(step),
       });
 
       // Update local state with new auction state
@@ -211,6 +279,8 @@ function AuctionPage() {
         prev.map(a => a.address === bidTarget.address ? { ...a, state: result.newState } : a)
       );
       setBidTarget(null);
+      setTimeout(() => setIsZkOpen(false), 2000); // let them see step 3
+
       toast.success('Bid placed! ✅', (
         <div>
           Tx:{' '}
@@ -225,15 +295,27 @@ function AuctionPage() {
         </div>
       ));
     } catch (err) {
-      toast.error('Bid failed', err instanceof Error ? err.message : String(err));
+      setIsZkOpen(false);
+      toast.error('Bid failed', parseContractError(err));
     } finally {
       setPendingBid(false);
     }
-  }, [bidTarget, ensureApi, toast]);
+  }, [bidTarget, ensureApi, toast, demoMode]);
 
   // ── Settle ─────────────────────────────────────────────────────────────────
   const handleSettle = useCallback(async (address: string) => {
     setPendingSettle(address);
+    if (demoMode) {
+      setTimeout(() => {
+        setAuctions(prev =>
+          prev.map(a => a.address === address ? { ...a, state: { ...a.state, status: AuctionStatus.SETTLED } } : a)
+        );
+        toast.success('Demo auction settled! 🎉');
+        setPendingSettle(null);
+      }, 2000);
+      return;
+    }
+
     try {
       const api = await ensureApi();
       if (!api) return;
@@ -249,11 +331,11 @@ function AuctionPage() {
         toast.info('Auction expired — reserve was not met.');
       }
     } catch (err) {
-      toast.error('Settle failed', err instanceof Error ? err.message : String(err));
+      toast.error('Settle failed', parseContractError(err));
     } finally {
       setPendingSettle(null);
     }
-  }, [ensureApi, toast]);
+  }, [ensureApi, toast, demoMode]);
 
   // ── Withdraw ───────────────────────────────────────────────────────────────
   const handleWithdraw = useCallback(async (address: string) => {
@@ -268,7 +350,7 @@ function AuctionPage() {
       );
       toast.info('Withdrawal complete.');
     } catch (err) {
-      toast.error('Withdraw failed', err instanceof Error ? err.message : String(err));
+      toast.error('Withdraw failed', parseContractError(err));
     } finally {
       setPendingWithdraw(null);
     }
@@ -311,7 +393,7 @@ function AuctionPage() {
       }
       setLookupAddress('');
     } catch (err) {
-      toast.error('Lookup failed', err instanceof Error ? err.message : String(err));
+      toast.error('Lookup failed', parseContractError(err));
     }
   }, [lookupAddress, auctions, ensureApi, toast]);
 
@@ -322,6 +404,8 @@ function AuctionPage() {
 
       {/* ── Navigation ───────────────────────────────────────────────── */}
       <Navbar wallet={wallet} />
+
+      {demoMode && <DemoBanner onExit={() => setDemoMode(false)} />}
 
       {/* ── Main content ─────────────────────────────────────────────── */}
       <main className="flex-1 w-full px-4 py-8 md:px-6 md:py-12" style={{ maxWidth: 1200, margin: '0 auto' }}>
@@ -354,15 +438,24 @@ function AuctionPage() {
             <div style={{ padding: '40px', background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px dashed rgba(255,255,255,0.1)' }}>
               <h2 style={{ fontSize: 24, marginBottom: 16, fontFamily: 'var(--font-display)' }}>Connect to continue</h2>
               <p style={{ color: 'var(--text-secondary)', marginBottom: 24 }}>You need to connect your 1AM wallet to interact with auctions.</p>
-              <button
-                id="hero-connect-btn"
-                className="btn btn-primary"
-                onClick={wallet.connect}
-                disabled={wallet.isConnecting}
-                style={{ fontSize: 16, padding: '14px 28px' }}
-              >
-                {wallet.isConnecting ? <><span className="spinner" />Connecting…</> : <>Connect 1AM Wallet</>}
-              </button>
+              <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
+                <button
+                  id="hero-connect-btn"
+                  className="btn btn-primary"
+                  onClick={wallet.connect}
+                  disabled={wallet.isConnecting}
+                  style={{ fontSize: 16, padding: '14px 28px' }}
+                >
+                  {wallet.isConnecting ? <><span className="spinner" />Connecting…</> : <>Connect 1AM Wallet</>}
+                </button>
+                <button
+                  className="btn btn-ghost"
+                  onClick={() => setDemoMode(true)}
+                  style={{ fontSize: 16, padding: '14px 28px', border: '1px solid rgba(255,255,255,0.2)' }}
+                >
+                  Try Demo Mode
+                </button>
+              </div>
             </div>
           )}
           
@@ -416,12 +509,70 @@ function AuctionPage() {
           </div>
         </section>
 
+        {/* Filter Bar */}
+        <section className="mb-6">
+          <div className="flex flex-col sm:flex-row gap-3 justify-between items-center">
+            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', width: '100%', paddingBottom: 4 }}>
+              {(['ALL', 'MINE', 'OPEN', 'SETTLED', 'EXPIRED'] as const).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: 20,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    background: activeTab === tab ? 'var(--purple-500)' : 'rgba(255,255,255,0.05)',
+                    color: activeTab === tab ? '#fff' : 'var(--text-secondary)',
+                    border: 'none',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {tab === 'MINE' ? 'My Auctions' : tab}
+                </button>
+              ))}
+            </div>
+            <input
+              className="input"
+              style={{ padding: '8px 16px', borderRadius: 20, width: '100%', maxWidth: 300, fontSize: 14 }}
+              placeholder="🔍 Search items..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </section>
+
         {/* Auctions grid */}
         <section aria-label="Active auctions" className="mb-20">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
-            {auctions.map(({ address, state, itemDescription, deployerAddress }) => {
-              // isSeller: compare stored deployer wallet address with current wallet address
-              // Also fallback to localStorage for older auctions created before the DB change
+            {auctions.filter(a => {
+              // Search filter
+              if (searchQuery && !a.itemDescription.toLowerCase().includes(searchQuery.toLowerCase()) && !a.address.toLowerCase().includes(searchQuery.toLowerCase())) {
+                return false;
+              }
+              // Is Seller logic
+              let isMine = false;
+              if (wallet.isConnected && !!wallet.address && !!a.deployerAddress && a.deployerAddress === wallet.address) {
+                isMine = true;
+              } else if (wallet.isConnected) {
+                try {
+                  const key = 'zkauction:seller-contracts';
+                  const sellerContracts: string[] = JSON.parse(localStorage.getItem(key) ?? '[]');
+                  if (sellerContracts.includes(a.address)) isMine = true;
+                } catch {}
+              }
+              // Demo seller override
+              if (demoMode && a.address === DEMO_ADDRESS) isMine = true;
+
+              // Tab filter
+              if (activeTab === 'MINE' && !isMine) return false;
+              if (activeTab === 'OPEN' && a.state.status !== AuctionStatus.OPEN) return false;
+              if (activeTab === 'SETTLED' && a.state.status !== AuctionStatus.SETTLED) return false;
+              if (activeTab === 'EXPIRED' && a.state.status !== AuctionStatus.EXPIRED) return false;
+
+              return true;
+            }).map(({ address, state, itemDescription, deployerAddress }) => {
               let isSellerForThis = false;
               if (wallet.isConnected && !!wallet.address && !!deployerAddress && deployerAddress === wallet.address) {
                 isSellerForThis = true;
@@ -434,6 +585,8 @@ function AuctionPage() {
                   }
                 } catch {}
               }
+              if (demoMode && address === DEMO_ADDRESS) isSellerForThis = true;
+              
               return (
                 <AuctionCard
                   key={address}
@@ -487,6 +640,18 @@ function AuctionPage() {
           onBid={handleBid}
         />
       )}
+
+      {reserveKeyTarget && (
+        <ReserveKeySafeModal
+          isOpen={true}
+          address={reserveKeyTarget.address}
+          reservePrice={reserveKeyTarget.reservePrice}
+          salt={reserveKeyTarget.salt}
+          onClose={() => setReserveKeyTarget(null)}
+        />
+      )}
+
+      <ZKProgressModal isOpen={isZkOpen} step={zkStep} />
     </div>
   );
 }
