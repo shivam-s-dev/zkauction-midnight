@@ -333,28 +333,20 @@ function buildLocalStoragePrivateStateProvider() {
 // Pre-built configs for common environments.
 // Values sourced from Midnight's official documentation.
 // Network IDs (exact strings for wallet.connect() and setNetworkId()):
-//   'preview'  — Midnight Preview testnet (most stable for current dev)
+//   'preprod'  — Midnight Preprod testnet (most stable for current dev)
 //   'preprod'  — Midnight Preprod testnet
 //   'devnet'   — Local docker stack
 
-/** Midnight Preview network endpoints (official public endpoints, no key required) */
-export const PREVIEW_CONFIG: MidnightNetworkConfig = {
-  nodeWsUrl:      process.env.NEXT_PUBLIC_NODE_WS_URL
-                    ?? 'wss://rpc.preview.midnight.network/ws',
-  indexerUri:     process.env.NEXT_PUBLIC_INDEXER_URI
-                    ?? 'https://indexer.preview.midnight.network/api/v4/graphql',
-  indexerWsUri:   process.env.NEXT_PUBLIC_INDEXER_WS_URI
-                    ?? 'wss://indexer.preview.midnight.network/api/v4/graphql',
-  proofServerUri: process.env.NEXT_PUBLIC_PROOF_SERVER_URI
-                    ?? 'https://proving.preview.midnight.network',
-};
-
-/** Midnight Preprod endpoints */
+/** Midnight Preprod network endpoints (official public endpoints, no key required) */
 export const PREPROD_CONFIG: MidnightNetworkConfig = {
-  nodeWsUrl:      'wss://rpc.preprod.midnight.network/ws',
-  indexerUri:     'https://indexer.preprod.midnight.network/api/v4/graphql',
-  indexerWsUri:   'wss://indexer.preprod.midnight.network/api/v4/graphql',
-  proofServerUri: 'https://proving.preprod.midnight.network',
+  nodeWsUrl:      process.env.NEXT_PUBLIC_NODE_WS_URL
+                    ?? 'wss://rpc.preprod.midnight.network/ws',
+  indexerUri:     process.env.NEXT_PUBLIC_INDEXER_URI
+                    ?? 'https://indexer.preprod.midnight.network/api/v4/graphql',
+  indexerWsUri:   process.env.NEXT_PUBLIC_INDEXER_WS_URI
+                    ?? 'wss://indexer.preprod.midnight.network/api/v4/graphql',
+  proofServerUri: process.env.NEXT_PUBLIC_PROOF_SERVER_URI
+                    ?? 'https://proving.preprod.midnight.network',
 };
 
 /** Local DevNet (docker compose up) endpoints */
@@ -367,13 +359,13 @@ export const DEVNET_CONFIG: MidnightNetworkConfig = {
 
 /**
  * Returns the appropriate network config based on NEXT_PUBLIC_MIDNIGHT_NETWORK.
- * The env var should be the exact network ID string: 'preview', 'preprod', or 'devnet'.
+ * The env var should be the exact network ID string: 'preprod', or 'devnet'.
  */
 export function getNetworkConfig(): MidnightNetworkConfig {
-  const network = (process.env.NEXT_PUBLIC_MIDNIGHT_NETWORK ?? 'preview').toLowerCase();
+  const network = (process.env.NEXT_PUBLIC_MIDNIGHT_NETWORK ?? 'preprod').toLowerCase();
   if (network === 'devnet') return DEVNET_CONFIG;
   if (network === 'preprod') return PREPROD_CONFIG;
-  return PREVIEW_CONFIG; // default: 'preview'
+  return PREPROD_CONFIG; // default: 'preprod'
 }
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
@@ -393,7 +385,7 @@ async function extractKeysFromConnectorOrAddress(connector: any, walletAddress: 
       const res = await connector.getShieldedAddresses();
       console.log('[ZKAuction] extractKeys: getShieldedAddresses =>', JSON.stringify(res, null, 2));
 
-      // Single object response (1AM wallet on preview / preprod)
+      // Single object response (1AM wallet on preprod / preprod)
       if (res && res.shieldedCoinPublicKey && res.shieldedEncryptionPublicKey) {
         console.log('[ZKAuction] extractKeys: using shieldedCoinPublicKey / shieldedEncryptionPublicKey directly');
         return {

@@ -108,8 +108,8 @@ export class AuctionAPI {
    */
   static async connect(walletConnector: MidnightWalletConnector): Promise<AuctionAPI> {
     // Set the global network ID — this MUST exactly match what the 1AM wallet expects.
-    // The env var NEXT_PUBLIC_MIDNIGHT_NETWORK should be 'preview', 'preprod', or 'devnet'.
-    const networkId = (process.env.NEXT_PUBLIC_MIDNIGHT_NETWORK ?? 'preview').toLowerCase();
+    // The env var NEXT_PUBLIC_MIDNIGHT_NETWORK should be 'preprod', 'preprod', or 'devnet'.
+    const networkId = (process.env.NEXT_PUBLIC_MIDNIGHT_NETWORK ?? 'preprod').toLowerCase();
     setNetworkId(networkId);
     console.log('[ZKAuction] Set network ID to:', networkId);
 
@@ -172,7 +172,7 @@ export class AuctionAPI {
 
       // ── Step 1: Create the unproven deploy transaction ──────────────────
       // MUST use createUnprovenDeployTx + submitTxAsync instead of deployContract()
-      // because deployContract() hangs indefinitely on the Preview network.
+      // because deployContract() hangs indefinitely on the Preprod network.
       const deployTxData = await (createUnprovenDeployTx as any)(
         {
           zkConfigProvider: this.providers.zkConfigProvider,
@@ -570,7 +570,7 @@ async function loadCompiledContractModule(): Promise<any> {
  * Resolves the wallet address from a connector.
  * Supports ALL Midnight address formats:
  *   - Old testnet: tds1... (shielded), tdu1... (unshielded)
- *   - New preview/preprod/mainnet: mn_shield-addr_preview..., mn_addr_...
+ *   - New preprod/preprod/mainnet: mn_shield-addr_preprod..., mn_addr_...
  *   - Via async functions or plain string properties
  */
 async function resolveAddress(connector: any): Promise<string> {
@@ -608,7 +608,7 @@ async function resolveAddress(connector: any): Promise<string> {
 
       // Direct object properties — checked in priority order
       if (typeof res === 'object') {
-        // The 1AM wallet on preview/preprod returns { shieldedAddress, shieldedCoinPublicKey, ... }
+        // The 1AM wallet on preprod/preprod returns { shieldedAddress, shieldedCoinPublicKey, ... }
         if (typeof res.shieldedAddress === 'string' && res.shieldedAddress) return res.shieldedAddress;
         if (typeof res.unshieldedAddress === 'string' && res.unshieldedAddress) return res.unshieldedAddress;
         if (typeof res.address === 'string' && res.address) return res.address;
