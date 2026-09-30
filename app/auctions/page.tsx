@@ -5,6 +5,7 @@
  */
 
 import { useState, useCallback, useRef, useEffect, Suspense } from 'react';
+import confetti                         from 'canvas-confetti';
 import { useWallet }                    from '@/hooks/useWallet';
 import { ToastProvider, useToast }      from '@/components/ToastProvider';
 import { Navbar }                       from '@/components/Navbar';
@@ -216,7 +217,7 @@ function AuctionPage() {
         <div>
           Contract:{' '}
           <a
-            href={`https://explorer.1am.xyz/address/${address}?network=preview`}
+            href={`https://explorer.1am.xyz/address/${address}?network=preprod`}
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: 'var(--cyan-400)', textDecoration: 'underline' }}
@@ -248,9 +249,13 @@ function AuctionPage() {
         if (step === 3) {
           clearInterval(intv);
           setTimeout(() => {
+            const mockIdentity = '0xMockBidder' + Math.floor(Math.random() * 1000);
             setAuctions(prev =>
-              prev.map(a => a.address === bidTarget.address ? { ...a, state: { ...a.state, highest_bid: amountMicro, bid_count: a.state.bid_count + 1 } } : a)
+              prev.map(a => a.address === bidTarget.address ? { ...a, state: { ...a.state, highest_bid: amountMicro, bid_count: a.state.bid_count + 1, highest_bidder: mockIdentity } } : a)
             );
+            try {
+              localStorage.setItem(`zkauction:bidder:${bidTarget.address}`, mockIdentity);
+            } catch {}
             setIsZkOpen(false);
             setBidTarget(null);
             setPendingBid(false);
@@ -278,6 +283,10 @@ function AuctionPage() {
       setAuctions(prev =>
         prev.map(a => a.address === bidTarget.address ? { ...a, state: result.newState } : a)
       );
+      
+      try {
+        localStorage.setItem(`zkauction:bidder:${bidTarget.address}`, result.newState.highest_bidder);
+      } catch {}
       setBidTarget(null);
       setTimeout(() => setIsZkOpen(false), 2000); // let them see step 3
 
@@ -285,7 +294,7 @@ function AuctionPage() {
         <div>
           Tx:{' '}
           <a
-            href={`https://explorer.1am.xyz/tx/${result.txHash}?network=preview`}
+            href={`https://explorer.1am.xyz/tx/${result.txHash}?network=preprod`}
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: 'var(--cyan-400)', textDecoration: 'underline' }}
@@ -310,6 +319,12 @@ function AuctionPage() {
         setAuctions(prev =>
           prev.map(a => a.address === address ? { ...a, state: { ...a.state, status: AuctionStatus.SETTLED } } : a)
         );
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#a78bfa', '#22d3ee', '#4ade80']
+        });
         toast.success('Demo auction settled! 🎉');
         setPendingSettle(null);
       }, 2000);
@@ -326,6 +341,12 @@ function AuctionPage() {
       );
 
       if (result.newState.status === AuctionStatus.SETTLED) {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#a78bfa', '#22d3ee', '#4ade80']
+        });
         toast.success('Auction settled! Reserve was met 🎉');
       } else {
         toast.info('Auction expired — reserve was not met.');
