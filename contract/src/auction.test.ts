@@ -398,7 +398,8 @@ describe('ZKAuction — Private Reserve Auction', () => {
   describe('Phase 0 — Environment verification (kept for CI)', () => {
     it('test environment is Node v22+', () => {
       expect(typeof process.version).toBe('string');
-      expect(process.version).toMatch(/^v22/);
+      const majorVersion = parseInt(process.version.slice(1).split('.')[0]);
+      expect(majorVersion).toBeGreaterThanOrEqual(22);
     });
 
     it('Midnight SDK packages are importable', async () => {
