@@ -12,6 +12,7 @@ import { AuctionStatus } from '@/lib/types';
 import { useState, useEffect } from 'react';
 import { useCurrentBlock } from '@/hooks/useCurrentBlock';
 import { CopyButton } from '@/components/CopyButton';
+import { ActivityFeed } from '@/components/ActivityFeed';
 
 interface AuctionCardProps {
   state: AuctionState;
@@ -22,6 +23,7 @@ interface AuctionCardProps {
   onSettle?: () => void;
   onWithdraw?: () => void;
   isActionPending?: boolean;
+  activityRefreshKey?: number;
 }
 
 export function AuctionCard({
@@ -33,6 +35,7 @@ export function AuctionCard({
   onSettle,
   onWithdraw,
   isActionPending = false,
+  activityRefreshKey = 0,
 }: AuctionCardProps) {
   const currentBlock = useCurrentBlock();
   const isOpen     = state.status === AuctionStatus.OPEN;
@@ -331,6 +334,12 @@ export function AuctionCard({
           </div>
         )}
       </div>
+
+      {/* ── Activity Feed ── */}
+      <ActivityFeed
+        contractAddress={contractAddress}
+        refreshKey={activityRefreshKey}
+      />
     </article>
   );
 }

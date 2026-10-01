@@ -58,6 +58,9 @@ function AuctionPage() {
   const [auctions, setAuctions]   = useState<Array<{ address: string; state: AuctionState; itemDescription: string; deployerAddress: string | null }>>([]);
   const [lookupAddress, setLookupAddress] = useState(searchParams.get('address') || '');
   const [loadingAuctions, setLoadingAuctions] = useState(false);
+  // Incrementing this triggers ActivityFeed to re-fetch for a specific auction
+  const [activityRefreshKey, setActivityRefreshKey] = useState(0);
+  const bumpActivity = () => setActivityRefreshKey(k => k + 1);
 
   // Auto-lookup if address is in URL and wallet connected
   useEffect(() => {
@@ -114,6 +117,30 @@ function AuctionPage() {
       return null;
     }
   }, [wallet.connector, toast]);
+
+  // ── Record an on-chain event to the activity feed ──────────────────────────
+  const recordEvent = useCallback(async (
+    contractAddress: string,
+    eventType: string,
+    txHash?: string,
+    amountMicro?: bigint,
+  ) => {
+    try {
+      await fetch('/api/events', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contractAddress,
+          eventType,
+          txHash:      txHash ?? null,
+          amountMicro: amountMicro?.toString() ?? null,
+        }),
+      });
+      bumpActivity();
+    } catch {
+      // Non-critical — don't surface to user
+    }
+  }, []);
 
   // ── Fetch deployed auctions from Database ──────────────────────────────────
   const loadAuctions = useCallback(async () => {
@@ -226,6 +253,8 @@ function AuctionPage() {
           </a>
         </div>
       ));
+      // Record on-chain event in the activity feed
+      await recordEvent(address, 'AUCTION_CREATED');
     } catch (err) {
       toast.error('Deploy failed', parseContractError(err));
     } finally {
@@ -303,13 +332,15 @@ function AuctionPage() {
           </a>
         </div>
       ));
+      // Record on-chain event in the activity feed
+      await recordEvent(bidTarget.address, 'BID_PLACED', result.txHash, amountMicro);
     } catch (err) {
       setIsZkOpen(false);
       toast.error('Bid failed', parseContractError(err));
     } finally {
       setPendingBid(false);
     }
-  }, [bidTarget, ensureApi, toast, demoMode]);
+  }, [bidTarget, ensureApi, toast, demoMode, recordEvent]);
 
   // ── Settle ─────────────────────────────────────────────────────────────────
   const handleSettle = useCallback(async (address: string) => {
@@ -348,15 +379,17 @@ function AuctionPage() {
           colors: ['#a78bfa', '#22d3ee', '#4ade80']
         });
         toast.success('Auction settled! Reserve was met 🎉');
+        await recordEvent(address, 'SETTLED', result.txHash);
       } else {
         toast.info('Auction expired — reserve was not met.');
+        await recordEvent(address, 'EXPIRED', result.txHash);
       }
     } catch (err) {
       toast.error('Settle failed', parseContractError(err));
     } finally {
       setPendingSettle(null);
     }
-  }, [ensureApi, toast, demoMode]);
+  }, [ensureApi, toast, demoMode, recordEvent]);
 
   // ── Withdraw ───────────────────────────────────────────────────────────────
   const handleWithdraw = useCallback(async (address: string) => {
@@ -623,6 +656,7 @@ function AuctionPage() {
                     pendingWithdraw === address ||
                     (pendingBid && bidTarget?.address === address)
                   }
+                  activityRefreshKey={activityRefreshKey}
                 />
               );
             })}
