@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "compile:contract": "compact compile contract/src/auction.compact contract/src/generated",
+    "compile:contract": "compact compile contract/src/auction.compact --out-dir contract/src/generated",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

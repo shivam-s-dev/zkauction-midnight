@@ -5,12 +5,13 @@ import { PrismaPg } from '@prisma/adapter-pg';
 const prismaClientSingleton = () => {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
-    // Return a proxy/mock if DB URL is missing (e.g. during Vercel build phase)
-    return new Proxy({}, {
-      get() {
-        return () => Promise.resolve([]);
+    // Return a mock if DB URL is missing (e.g. during Vercel build phase)
+    return {
+      auctionContract: {
+        findMany: () => Promise.resolve([]),
+        create: () => Promise.resolve({}),
       }
-    }) as unknown as PrismaClient;
+    } as unknown as PrismaClient;
   }
   const pool = new Pool({ connectionString });
   const adapter = new PrismaPg(pool);
