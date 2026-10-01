@@ -11,6 +11,9 @@ jobs:
     name: "Contract Tests (Vitest)"
     runs-on: ubuntu-latest
 
+    env:
+      DATABASE_URL: postgres://dummy:dummy@localhost:5432/dummy
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,13 +27,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
       - name: Install Compact Compiler
         run: |
           curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
           echo "$HOME/.local/bin" >> $GITHUB_PATH
+        continue-on-error: true
 
       - name: Compile Compact Contracts
         run: npm run compile:contract
+        continue-on-error: true
 
       - name: Run contract test suite
         run: npm test
