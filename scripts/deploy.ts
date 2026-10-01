@@ -44,8 +44,8 @@ function parseArgs() {
   return {
     reserveNight:   Number(get('--reserve',  '1000')),
     durationBlocks: BigInt(get('--duration', '200')!),
-    itemDescription: get('--item', 'ZKAuction Demo Item — Midnight Preview') as string,
-    network:        get('--network', process.env.NEXT_PUBLIC_MIDNIGHT_NETWORK ?? 'preview') as string,
+    itemDescription: get('--item', 'ZKAuction Demo Item — Midnight Preprod') as string,
+    network:        get('--network', process.env.NEXT_PUBLIC_MIDNIGHT_NETWORK ?? 'preprod') as string,
   };
 }
 
@@ -106,13 +106,13 @@ async function main() {
   // For server-side (Node.js) deployment, we use different providers
   // than the browser-based ones in lib/providers.ts
   const nodeWsUrl   = process.env.NEXT_PUBLIC_NODE_WS_URL
-                     ?? 'wss://rpc.preview.midnight.network/ws';
+                     ?? 'wss://rpc.preprod.midnight.network/ws';
   const indexerUri  = process.env.NEXT_PUBLIC_INDEXER_URI
-                     ?? 'https://indexer.preview.midnight.network/api/v4/graphql';
+                     ?? 'https://indexer.preprod.midnight.network/api/v4/graphql';
   const indexerWsUri = process.env.NEXT_PUBLIC_INDEXER_WS_URI
-                      ?? 'wss://indexer.preview.midnight.network/api/v4/graphql';
+                      ?? 'wss://indexer.preprod.midnight.network/api/v4/graphql';
   const proofServerUri = process.env.NEXT_PUBLIC_PROOF_SERVER_URI
-                        ?? 'https://proving.preview.midnight.network';
+                        ?? 'https://proving.preprod.midnight.network';
 
   console.log(`   Node:         ${nodeWsUrl}`);
   console.log(`   Indexer:      ${indexerUri}`);

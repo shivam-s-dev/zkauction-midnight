@@ -9,8 +9,12 @@ const prismaClientSingleton = () => {
     return {
       auctionContract: {
         findMany: () => Promise.resolve([]),
-        create: () => Promise.resolve({}),
-      }
+        create:   () => Promise.resolve({}),
+      },
+      auctionEvent: {
+        findMany: () => Promise.resolve([]),
+        create:   () => Promise.resolve({}),
+      },
     } as unknown as PrismaClient;
   }
   const pool = new Pool({ connectionString });
