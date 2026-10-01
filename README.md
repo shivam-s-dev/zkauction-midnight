@@ -12,13 +12,13 @@
   ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
   ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
   ![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
-  ![Midnight](https://img.shields.io/badge/Midnight_Preview-8b5cf6?style=for-the-badge)
+  ![Midnight](https://img.shields.io/badge/Midnight_Preprod-8b5cf6?style=for-the-badge)
 </div>
 
 ---
 
 > [!WARNING]
-> **Network Notice:** This decentralized application and its smart contracts are currently deployed on the **Midnight PREVIEW Network**. All tokens used are test tokens with no real-world value.
+> **Network Notice:** This decentralized application and its smart contracts are currently deployed on the **Midnight PREPROD Network**. All tokens used are test tokens with no real-world value.
 
 ---
 
@@ -28,11 +28,14 @@
 | --- | --- |
 | [📖 SETUP.md](SETUP.md) | Full environment setup: wallet, faucet, env vars, local dev server |
 | [📘 USAGE.md](USAGE.md) | How to create auctions, place bids, settle, and understand the privacy model |
+| [🔄 FEEDBACK.md](FEEDBACK.md) | Beta feedback implementation record — all 16 features shipped with commit links |
+| [👥 LAUNCH_USER.md](LAUNCH_USER.md) | 70 verified Preprod beta testers with 1AM Explorer wallet links |
 | [README.md](#) | Project overview, architecture, smart contracts, and CI/CD |
 
 ### Contents
 
 - [🔗 Links](#-links)
+- [🆕 September 2026 Updates](#-september-2026-updates)
 - [💡 About the Product Idea](#-about-the-product-idea)
 - [🔒 Privacy Model](#-privacy-model-what-an-observer-can-and-cannot-learn)
 - [📸 Screenshots](#-screenshots)
@@ -42,6 +45,7 @@
 - [📁 File Structure](#-file-structure)
 - [✅ Test Cases](#-test-cases)
 - [🛠 Getting Started](#-getting-started-for-first-time-users)
+- [💬 Beta Feedback Program](#-beta-feedback-program)
 - [🚀 Future Implementation & Real World Applications](#-future-implementation--real-world-applications)
 - [🙏 Acknowledgements](#-acknowledgements)
 
@@ -51,9 +55,76 @@
 
 - **Live Deployed App**: [https://zkauction-midnight.vercel.app/](https://zkauction-midnight.vercel.app/) 
 - **ZKAuction Pitch Deck**: [Product Pitch](https://drive.google.com/file/d/1OAIqYRCKKLT6c-4WYnT6KX1WgDCQgRUb/view?usp=sharing) 
-- **Deployed Preview Contract**: `6eec85da7d92d58adf85637be652f1921e7233947ce76e9dda0d80e75bb83e65` ([View on Explorer](https://explorer.1am.xyz/contract/6eec85da7d92d58adf85637be652f1921e7233947ce76e9dda0d80e75bb83e65))
+- **Deployed Preprod Contract**: `253a2c03c18fe557274200dbfdd333f693ed72380d114099d6307955b3667e28` ([View on Explorer](https://explorer.1am.xyz/contract/253a2c03c18fe557274200dbfdd333f693ed72380d114099d6307955b3667e28))
 - **Demo Video**: [https://youtu.be/6QF17lxBqp4](https://youtu.be/6QF17lxBqp4)
 - **X (Twitter)**: [@zkauctionweb3](https://x.com/zkauctionweb3)
+
+---
+
+## 🆕 September 2026 Updates
+
+> **Beta Phase:** Sep 25–29, 2026 · Midnight PREPROD Network · 70 verified testers
+
+This wave marks ZKAuction's transition from prototype to a market-ready product. All updates were driven by real beta tester feedback collected via the [Beta Feedback Form](https://forms.gle/JZxhP95rocm9jHGQ8).
+
+### Wave 1 — Beginner & Mobile (P0)
+| Feature | Commit |
+|---|---|
+| 🎓 Interactive 5-step onboarding walkthrough | [`78524ea`](https://github.com/shivam-s-dev/zkauction-midnight/commit/78524ea) |
+| 📱 Mobile hamburger navigation menu | [`78524ea`](https://github.com/shivam-s-dev/zkauction-midnight/commit/78524ea) |
+| 🔐 Reserve price safe-keeping modal (download / localStorage backup) | [`78524ea`](https://github.com/shivam-s-dev/zkauction-midnight/commit/78524ea) |
+| ⚡ ZK proof step-by-step progress modal | [`31568c4`](https://github.com/shivam-s-dev/zkauction-midnight/commit/31568c4) |
+| 🎮 Demo Mode — full UI walkthrough without a wallet | [`9f23556`](https://github.com/shivam-s-dev/zkauction-midnight/commit/9f23556) |
+
+### Wave 2 — UX Polish (P1)
+| Feature | Commit |
+|---|---|
+| ☀️🌙 Light / Dark theme toggle with localStorage persistence | [`b9c77b9`](https://github.com/shivam-s-dev/zkauction-midnight/commit/b9c77b9) |
+| ⏱ Real-time auction countdown timer (blocks → human-readable) | [`e984363`](https://github.com/shivam-s-dev/zkauction-midnight/commit/e984363) |
+| 💰 Live tNIGHT wallet balance display in Navbar | [`b8a242c`](https://github.com/shivam-s-dev/zkauction-midnight/commit/b8a242c) |
+| 🗂 My Auctions tab + Search & Filter bar | [`64b82c0`](https://github.com/shivam-s-dev/zkauction-midnight/commit/64b82c0) |
+| 📋 Copy-to-clipboard for contract addresses & TX hashes | [`e984363`](https://github.com/shivam-s-dev/zkauction-midnight/commit/e984363) |
+| 🔗 Shareable deep link per auction | [`64b82c0`](https://github.com/shivam-s-dev/zkauction-midnight/commit/64b82c0) |
+| ⏳ Duration presets (15 min / 1 hr / 4 hrs / 1 day / 3 days) | [`9f23556`](https://github.com/shivam-s-dev/zkauction-midnight/commit/9f23556) |
+
+### Wave 3 — Power Features (P2)
+| Feature | Commit |
+|---|---|
+| 🎨 Generative deterministic avatar per auction (on-chain `item_hash`) | [`d81060a`](https://github.com/shivam-s-dev/zkauction-midnight/commit/d81060a) |
+| 🔴 Outbid / winning alert banners | [`ffaccfb`](https://github.com/shivam-s-dev/zkauction-midnight/commit/ffaccfb) |
+| 🎉 Confetti celebration on auction settlement | [`d81060a`](https://github.com/shivam-s-dev/zkauction-midnight/commit/d81060a) |
+| 🔗 1AM Explorer inline links on every card | [`e984363`](https://github.com/shivam-s-dev/zkauction-midnight/commit/e984363) |
+| 📋 Activity Feed — on-chain event timeline per auction (privacy-safe, no wallet addresses) | [`HEAD`](https://github.com/shivam-s-dev/zkauction-midnight/commits/main) |
+
+### Smart Contract
+| Item | Detail |
+|---|---|
+| **September Contract** | [`253a2c03c18fe557...`](https://explorer.1am.xyz/contract/253a2c03c18fe557274200dbfdd333f693ed72380d114099d6307955b3667e28) |
+| **Network** | Midnight **PREPROD** |
+| **Compiler** | Compact v0.5.3 |
+
+---
+
+## 💬 Beta Feedback Program
+
+ZKAuction ran a structured 5-day open beta on the Midnight **PREPROD** network with **70 verified testers**.
+
+| | |
+|---|---|
+| 📋 **Feedback Form** | [forms.gle/JZxhP95rocm9jHGQ8](https://forms.gle/JZxhP95rocm9jHGQ8) |
+| 📊 **Responses Sheet** | [View Beta Responses](https://forms.gle/JZxhP95rocm9jHGQ8) |
+| 👥 **Beta Testers** | [LAUNCH_USER.md](LAUNCH_USER.md) — 70 verified Preprod wallets |
+| 🔄 **Implementation Record** | [FEEDBACK.md](FEEDBACK.md) — 15/16 features shipped |
+
+### Beta Results
+
+- **50 feedback submissions** collected (Sep 25–29, 2026)
+- **Average UX rating:** 4.9 / 5
+- **Average 1AM + ZK ease rating:** 4.7 / 5
+- **Bug reports:** 0
+- **Features requested → shipped:** 15 of 16 within the beta window
+
+All feedback is mapped to implementation commits in [FEEDBACK.md](FEEDBACK.md). Every shipped feature has a direct link to its GitHub commit for full traceability.
 
 ---
 
@@ -126,14 +197,11 @@ The ZKAuction smart contract is written in **Compact** (Midnight's specialized Z
 ### Deployed Contracts & Transactions
 
 > [!NOTE]
-> All transactions and contracts below are on the **Midnight PREVIEW Network**. You can verify them on the [1AM Explorer](https://explorer.1am.xyz).
+> All transactions and contracts below are on the **Midnight PREPROD Network**. You can verify them on the [1AM Explorer](https://explorer.1am.xyz).
 
 | Action / Type | Address / Hash | Explorer Link |
 | --- | --- | --- |
-| **Smart Contract Deployment** | `bd6dce38476aecb68b5a10673f94ec8da207c8d8d0f0af97f35adcc87dfbbbda` | [View Transaction](https://explorer.1am.xyz/tx/bd6dce38476aecb68b5a10673f94ec8da207c8d8d0f0af97f35adcc87dfbbbda?network=preview) |
-| **Create Auction** | `662c2bbe902898ffdbc442ae716547a525560c4f88adb77b646088e108380d71` | [View Transaction](https://explorer.1am.xyz/tx/662c2bbe902898ffdbc442ae716547a525560c4f88adb77b646088e108380d71?network=preview) |
-| **Settle** | `50beadc97505b4f83f6b8b8d0eda1885a373a50bf949152eb76bf662349d4b01` | [View Transaction](https://explorer.1am.xyz/tx/50beadc97505b4f83f6b8b8d0eda1885a373a50bf949152eb76bf662349d4b01?network=preview) |
-| **Deployed Contract** | `6eec85da7d92d58adf85637be652f1921e7233947ce76e9dda0d80e75bb83e65` | [View Contract](https://explorer.1am.xyz/contract/6eec85da7d92d58adf85637be652f1921e7233947ce76e9dda0d80e75bb83e65) |
+| **Deployed Contract** | `253a2c03c18fe557274200dbfdd333f693ed72380d114099d6307955b3667e28` | [View Contract](https://explorer.1am.xyz/contract/253a2c03c18fe557274200dbfdd333f693ed72380d114099d6307955b3667e28) |
 
 ### Contract Code & Deployment Images
 
@@ -141,19 +209,7 @@ The ZKAuction smart contract is written in **Compact** (Midnight's specialized Z
 ![Circuit Code](assets/SMART%20CONTRACTS/circuit%20screenshot.png)
 *A snippet of our zero-knowledge smart contract written in Midnight's Compact language.*
 
-#### 1. Smart Contract Deployment (Blockchain Explorer)
-![Contract Deployment](assets/SMART%20CONTRACTS/smart-contract-deployment.png)
-*Verification of the core ZKAuction smart contract successfully deployed to the Midnight Preview Network.*
 
-#### 2. Create Auction Transaction
-![Create Auction Tx](assets/SMART%20CONTRACTS/create-auction.png)
-*The on-chain transaction record of a seller securely creating a new auction with a hidden reserve commitment.*
-
-#### 3. Place Bid Transaction
-![Place Bid Tx](assets/SMART%20CONTRACTS/place-bid.png)
-*The on-chain transaction record of a bidder placing a bid, showing how actual wallet addresses remain private.*
-
----
 
 ## 🏗 Project Architecture
 
@@ -161,7 +217,7 @@ The ZKAuction smart contract is written in **Compact** (Midnight's specialized Z
 graph TD
     A[Next.js Frontend] -->|API Routes| B(Prisma / Neon Postgres)
     A -->|window.midnight.1am| C{1AM Wallet}
-    C -->|Sign Tx| D[Midnight Preview Network]
+    C -->|Sign Tx| D[Midnight Preprod Network]
     A -->|Midnight JS SDK| D
     A -->|Local ZK Proofs| E[Midnight Proof Server]
     B -->|Store off-chain data| F[(Neon DB)]
@@ -249,12 +305,12 @@ If you are a judge or a new user wanting to run this project locally, follow the
 ZKAuction interacts with the Midnight Network via the 1AM Wallet browser extension.
 1. Download the **1AM Wallet** extension from the Chrome Web Store (or compatible Chromium browser).
 2. Create a new wallet and securely save your 24-word recovery phrase.
-3. Once created, click on the network dropdown at the top of the wallet and ensure it is set to **Midnight Preview** (Preview).
+3. Once created, click on the network dropdown at the top of the wallet and ensure it is set to **Midnight Preprod** (Preprod).
 
-### Step 2: Get Free Preview Tokens (Faucet)
+### Step 2: Get Free Preprod Tokens (Faucet)
 You need test tokens (tNIGHT) to deploy contracts and place bids.
 1. Copy your wallet address from the 1AM Wallet extension.
-2. Go to the [Midnight Preview Faucet](https://faucet.testnet-01.midnight.network/).
+2. Go to the [Midnight Preprod Faucet](https://faucet.testnet-01.midnight.network/).
 3. Paste your address, request tokens, and wait a few seconds. Your wallet will be funded!
 
 ### Step 3: Run ZKAuction Locally
